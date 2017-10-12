@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="InlineObjectCreator.widget.InlineObjectCreator" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
+  <name>Inline object creator</name>
+  <description>Display a simple input field and let they user create an object on the fly</description>
+
+  <icon>iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJ
+bWFnZVJlYWR5ccllPAAAAn9JREFUeNpsU81PE1EQ/+3b3aJg1AKlgCAFo6QHbGKEgwkaTQgnjRqP
++hd45j/w6MmDV2M4NYaExAN40MSgCcFEAhKjbZrgRxCKrdoudj/e23XmtQVi+jaz8z5mfm/mN/OM
+KIrw/3iysFE81t520rYFTFPAoE+FEdjWMGiuIoShQuWv71toMTrabXt6fMg+Qqe5zW1yBqRUCGQI
+UuhLxDGY7ML8ci5qCSADSTeE2KspLL5Zx/J6AVOXxnC6rxtrn75hZLAXiXicQCVaAvi+TwAROk90
+YHgwibereVxIj2B8LIX0cApftnZRcyUCEtESwAvQ5Mb1FSzTRLHkYGvHQbFcoRS66MREzfNaR+AF
+gSaNh0FKhhKF7zv449SQ//oDd6YmEbNMsvNhPV/6rC35xigKdeiBkpQfr9k5hDAEEp3HcWbglK5A
+RHuupzjSmI4gO7+gSVNKkUhkMhkCCKlkQMyO6RQGkj2YON+PVH8vVjZyqOx5CMnWYqeAQs4+mtEh
+Ew4ePn1BJVPIb/7E+48FbJfKeP3uA6qOQ6kUsVv6jRvXJqG4CvWbpXa+dfMens3NEqCEKSxiWODK
+xTFifxRtlg1DxNBD5Ts3NIS+7m54fkAAHLaU+wRG1CjF8i88zi7CJqKEYdQ7kbuPOOI5/1+trBKp
+VViu68KpVvYBOIUH9+9SL1A1PBKXxD/QMgBFCBRKS7g8cRWCOeCOaj4JukiD0PaBUIDczlFjX5/T
+WxDCIICwngIDZLOzxGzDqCHsyA7NNYOwLafOABZXID16FnMv12Dbti6n5oWBSYeqWd76Hp9pGxKL
+Xqom8fb1aXqBRzWiyWFpLepz89D80D5rXv8TYADy3olTEDApvQAAAABJRU5ErkJggg==</icon>
+
+  <properties>
+		<property key="entity" type="entity" required="true">
+      <caption>Object to create</caption>
+      <category>Behavior</category>
+      <description>
+				The type of the object which will be created by this widget. 
+			</description> 
+    </property>
+		
+		<property key="attribute" type="attribute" entityProperty="entity" required="true">
+      <caption>Input attribute</caption>
+      <category>Behavior</category>
+      <description>
+				The attribute of the created object that will store the user input. 
+			</description> 
+      <attributeTypes>
+        <attributeType name="String"/> 
+      </attributeTypes>
+    </property>
+		
+		<property key="inputregex" type="string" defaultValue="^.*?\w.*$" required="true">
+			<caption>Input regex</caption>
+			<category>Behavior</category>
+			<description>
+				JavaScript regular expression to validate the input. The object will not be created until this regex is satisfied. The regular expression will be tested non case sensitive.
+				
+				Default
+				^.*?\w.*$): Input must contain at least one alpha numeric character.
+				
+				^.+$: Accept any not empty string
+				
+				^\s*?\S.*$: Accept any string which contains at least one not whitespace character. 
+			</description>
+		</property>		
+		
+		<property key="ownerattribute" type="entity" entityProperty="entity" isPath="yes"  pathType="reference" required="true">
+      <caption>Owner association</caption>
+      <category>Behavior</category>
+      <description>
+				This association needs to be a 1 -- 0 assocation from the created object to the context object. This association will be set automatically. 
+			</description> 
+    </property>
+		
+		<property key="aftercreatemicroflow" type="microflow" entityProperty="entity" required="false">
+      <caption>After create microflow</caption>
+      <category>Behavior</category>
+      <description>
+				This microflow will be invoked after that the object has been created. Will be used typically to refresh the context object. The microflow must return a string,
+				which will be shown to the user as feedback. 				
+			</description>
+			<returnType type="String"/>
+    </property>			
+		
+		<property key="buttoncaption" type="translatableString" required="false">
+			<caption>Button caption</caption>
+			<category>Appearance</category>
+			<description>Caption of the submit button. If empty, the button will not be shown. </description>
+		</property>
+
+		<property key="invalidvalue" type="translatableString">
+			<caption>Invalid input message</caption>
+			<category>Appearance</category>
+			<description>This message will be shown to the user if the input does not match the regular expression.</description>
+		</property>
+
+		<property key="inputcaption" type="translatableString" required="false">
+			<caption>Input caption</caption>
+			<category>Appearance</category>
+			<description>The caption of the input box before the user enters it. </description>
+		</property>
+		<property key="savecaption" type="translatableString" required="false">
+			<caption>Saving message</caption>
+			<category>Appearance</category>
+			<description>This message which will be displayed while the widget is saving a new object. </description>
+		</property>
+		<property key="savedcaption" type="translatableString" required="false">
+			<caption>Saved message</caption>
+			<category>Appearance</category>
+			<description>This message which will be displayed when the widget finished saving the object. </description>
+		</property>
+		
+		<property key="width" type="integer" defaultValue="200">
+			<caption>Input width</caption>
+			<category>Appearance</category>
+			<description>Width of the input box in pixels.</description>
+		</property>
+		
+		<property key="rows" type="integer" defaultValue="1">
+			<caption>Input height (lines)</caption>
+			<category>Appearance</category>
+			<description>Number of lines of the input object. If 1, a text input box will be used, otherwise a text area. </description>
+		</property>		
+		
+  </properties>
+</widget>
+
