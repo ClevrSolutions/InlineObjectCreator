@@ -1,0 +1,24 @@
+{
+  "name": "inline-object-creator",
+  "widgetName": "InlineObjectCreator",
+  "version": "0.1",
+  "description": "",
+  "copyright": "Mansystems",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MansystemsCorp/InlineObjectCreator"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "grunt": "1.0.1",
+    "grunt-check-dependencies": "^1.0.0",
+    "grunt-contrib-clean": "^1.1.0",
+    "grunt-contrib-compress": "^1.4.3",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-file-append": "0.0.7",
+    "grunt-newer": "^1.3.0",
+    "grunt-webpack": "^3.0.2"
+  },
+  "dependencies": {}
+}
