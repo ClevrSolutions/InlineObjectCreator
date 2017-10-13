@@ -1,12 +1,22 @@
-dojo.provide("InlineObjectCreator.widget.InlineObjectCreator");
+define([
+	'dojo/_base/declare',
+	'mxui/widget/_WidgetBase',
+	'dijit/_TemplatedMixin',
+	'dojo/_base/lang',
+	'dojo/text!InlineObjectCreator/widget/ui/InlineObjectCreator.html',
+	"dojo/dom-style",
+	"dojo/dom-class",
+	"dojo/html",
+	"mxui/dom",
+	"dojo/json",
+	"dojo/_base/fx",
+	"dojo/on"
+], function (declare, _WidgetBase, _TemplatedMixin, lang, widgetTemplate, domStyle, domClass, html, dom, json, fx, on) {
+	'use strict';
 
-if (!dojo.getObject("widgets.widgets"))
-	mendix.dom.insertCss(mx.moduleUrl('InlineObjectCreator','widget/ui/InlineObjectCreator.css'));
+	return declare('InlineObjectCreator.widget.InlineObjectCreator', [ _WidgetBase, _TemplatedMixin ], {
 
-mendix.widget.declare('InlineObjectCreator.widget.InlineObjectCreator', {
-	addons       : [dijit._Templated, mendix.addon._Contextable],
-	templatePath : dojo.moduleUrl('InlineObjectCreator', "widget/ui/InlineObjectCreator.html"),
-    inputargs: { 
+		templateString: widgetTemplate,
 			aftercreatemicroflow : '',
 			tabindex : 0,
 			entity :'',
@@ -19,8 +29,7 @@ mendix.widget.declare('InlineObjectCreator.widget.InlineObjectCreator', {
 			width : 200,
 			rows : 1,
 			savecaption : "Saving...",
-			savedcaption: "Saved"
-    },
+			savedcaption: "Saved",
 	
 	dataobject : null,
 	feedbackNode : null,
@@ -35,6 +44,7 @@ mendix.widget.declare('InlineObjectCreator.widget.InlineObjectCreator', {
 	postCreate : function(){
 		//houskeeping
 		logger.debug(this.id + ".postCreate");
+		dom.addCss('widgets/InlineObjectCreator/widget/ui/InlineObjectCreator.css');
 		
 		if (this.rows == 1) {
 			this.inputNode = this.inputNodeInput;
@@ -44,25 +54,26 @@ mendix.widget.declare('InlineObjectCreator.widget.InlineObjectCreator', {
 			this.inputNode = this.inputNodeTextArea;
 			this.domNode.removeChild(this.inputNodeInput);
 		}
-		dojo.style(this.inputNode, { display : 'block', width : this.width});
+		domStyle.set(this.inputNode, { display : 'block', width : this.width});
 		
 		if (this.buttoncaption == "")
-			dojo.style(this.buttonNode, "display", "none");
+		domStyle.set(this.buttonNode, "display", "none");
 		else {
 			this.connect(this.buttonNode, "onclick", this.trigger);
 			this.connect(this.buttonNode, "onkeypress", this.keypress);
-			this.connect(this.buttonNode, 'onmouseenter', dojo.hitch(this, this.buttonHover, true));
-			this.connect(this.buttonNode, 'onmouseleave', dojo.hitch(this, this.buttonHover, false));
+			this.connect(this.buttonNode, 'onmouseenter', lang.hitch(this, this.buttonHover, true));
+			this.connect(this.buttonNode, 'onmouseleave', lang.hitch(this, this.buttonHover, false));
 		}
 		
 		this.connect(this.inputNode, "onkeypress", this.keypress);
-		this.enterhandle = dojo.connect(this.inputNode, 'onfocus', this, this.onfocus);
-		this.exithandle = dojo.connect(this.inputNode, 'onblur', this, this.onblur);
+		this.enterhandle = on(this.inputNode, 'onfocus', this, this.onfocus);
+		this.exithandle = on(this.inputNode, 'onblur', this, this.onblur);
 
 		this.connect(this.inputNodeTextArea, "oninput", this.setHeight);
 		
-		this.initContext();
-		this.actRendered();
+		// this.initContext();
+		// this.actRendered();
+		/* Deprecated function */
 	},
 	
 	setHeight :function() {
@@ -76,31 +87,31 @@ mendix.widget.declare('InlineObjectCreator.widget.InlineObjectCreator', {
 	
 	buttonHover : function (enter, e) {
 		if (enter == true) {
-			mendix.dom.addClass(this.buttonNode, 'InlineObjectCreatorButtonFocus');
+			domClass.add(this.buttonNode, 'InlineObjectCreatorButtonFocus');
 		} else {
-			mendix.dom.removeClass(this.buttonNode, 'InlineObjectCreatorButtonFocus');
+			domClass.remove(this.buttonNode, 'InlineObjectCreatorButtonFocus');
 		}
 	},
 	
 	onblur : function () {
 		if (this.exithandle != null) {
-			this.disconnect(this.exithandle);
+			this.exithandle.remove();
 			this.exithandle = null;
 		}
 			
 		if (this.inputNode.value == '') {
 			this.inputNode.value = this.inputcaption;
-			dojo.addClass(this.inputNode, 'InlineObjectCreaterPreFocus');
-			this.enterhandle = dojo.connect(this.inputNode, 'onfocus', this, this.onfocus);
+			domClass.add(this.inputNode, 'InlineObjectCreaterPreFocus');
+			this.enterhandle = on(this.inputNode, 'onfocus', this, this.onfocus);
 		}
 	},
 	
 	onfocus : function() {
-		dojo.disconnect(this.enterhandle);
+		this.enterhandle.remove();
 		this.enterhandle = null;
-		dojo.removeClass(this.inputNode, 'InlineObjectCreaterPreFocus');
+		domClass.remove(this.inputNode, 'InlineObjectCreaterPreFocus');
 		if(this.inputNode.value == this.inputcaption) this.inputNode.value = ''; // only clear this field in case it was set with the placeholder caption
-		this.exithandle = dojo.connect(this.inputNode, 'onblur', this, this.onblur);
+		this.exithandle = on(this.inputNode, 'onblur', this, this.onblur);
 	},
 	
 	feedbackError : function(msg, error) {
@@ -114,29 +125,30 @@ mendix.widget.declare('InlineObjectCreator.widget.InlineObjectCreator', {
 			if (this.anim != null)
 				anim.stop();
 			
-			dojo.html.set(this.feedbackNode, msg);
-			dojo.style(this.feedbackNode, {
+			html.set(this.feedbackNode, msg);
+			domStyle.set(this.feedbackNode, {
 				height : 'auto', display : 'block'
 			});
 
-			dojo.animateProperty({
+			fx.animateProperty({
 				node : this.feedbackNode,
 				properties : { height : 0 },
 				duration : 700,
 				delay : 2000,
-				onEnd : dojo.hitch(this, function() {
-					dojo.style(this.feedbackNode, 'display', 'none');
+				onEnd : lang.hitch(this, function() {
+					domStyle.set(this.feedbackNode, 'display', 'none');
 				})
 			}).play();
 		}
 		else
-			dojo.style(this.feedbackNode, 'display', 'none');
+		domStyle.set(this.feedbackNode, 'display', 'none');
 	},
 	
 	keypress : function(e) {
 		if (e.keyCode == 13 && (this.rows == 1 || e.ctrlKey == true)) { //multiline needs ctrl key
 			this.trigger();
-			dojo.stopEvent(e); //no bubbling
+			e.preventDefault(); // no bubbling
+			e.stopPropagation(); // no bubbling
 		}
 	},
 	
@@ -159,37 +171,41 @@ mendix.widget.declare('InlineObjectCreator.widget.InlineObjectCreator', {
 		}
 		
 		this.feedback(this.savecaption);
-		mx.processor.createObject({
-			"className"	: this.entity,
-			"callback"	: dojo.hitch(this, this.created, input),
-			"context"	: null
+		mx.data.create({
+			entity: this.entity,
+			callback: lang.hitch(this, this.created, input)
 		});
 	},
 	
 	created : function(value, object) {
 		//update ownership
-		object.setAttribute(this.ownerattribute.split("/")[0], this.dataobject);
-		object.setAttribute(this.attribute, value);
+		object.set(this.ownerattribute.split("/")[0], this.dataobject);
+		object.set(this.attribute, value);
 		var me = this;
-		object.save({
-			error : dojo.hitch(this, this.feedbackError, "Error while saving object"),
-			callback : dojo.hitch(me, me.invokeMF, object)
-		});
+		if (object) {
+			mx.data.commit({
+				mxobj: object,
+				callback: lang.hitch(me, me.invokeMF, object),
+				error: lang.hitch(this, this.feedbackError, "Error while saving object")
+			});
+		}
 	},
 	
 	invokeMF : function(object) {
 		//invoke microflow
 		if (this.aftercreatemicroflow) {
-			mx.processor.xasAction({
-				error       : dojo.hitch(this, this.feedbackError, "Error: XAS error executing microflow"),
-				callback    : dojo.hitch(this, function(data) {
-					this.feedback("" + dojo.fromJson(data.xhr.responseText).actionResult);				
+			mx.data.action({
+				params: {
+					actionname: this.aftercreatemicroflow,
+					applyto: 'selection',
+					guids: [ object.getGuid() ]
+				},
+				error: lang.hitch(this, this.feedbackError, "Error: XAS error executing microflow"),
+				callback: lang.hitch(this, function (data) {
+					this.feedback(data);
 					this.inputNode.value = '';
 					this.onblur();
-				}),
-				actionname  : this.aftercreatemicroflow,
-				applyto     : 'selection',
-				guids       : [object.getGUID()]
+				})
 			});
 		}
 		else
@@ -201,7 +217,7 @@ mendix.widget.declare('InlineObjectCreator.widget.InlineObjectCreator', {
 	applyContext : function(context, callback){
 		logger.debug(this.id + ".applyContext"); 
 		if (context) 
-			this.dataobject = context.getActiveGUID();
+			this.dataobject = context.getTrackId();
 		else
 			logger.warn(this.id + ".applyContext received empty context");
 		
@@ -213,4 +229,7 @@ mendix.widget.declare('InlineObjectCreator.widget.InlineObjectCreator', {
 	
 	uninitialize : function(){
 	}
-});
+	});
+	});
+
+require([ 'InlineObjectCreator/widget/InlineObjectCreator' ]);
