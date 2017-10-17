@@ -1,17 +1,18 @@
 define([
-	'dojo/_base/declare',
-	'mxui/widget/_WidgetBase',
-	'dijit/_TemplatedMixin',
-	'dojo/_base/lang',
-	'dojo/text!InlineObjectCreator/widget/ui/InlineObjectCreator.html',
+	"dojo/_base/declare",
+	"mxui/widget/_WidgetBase",
+	"dijit/_TemplatedMixin",
+	"dojo/_base/lang",
+	"dojo/text!InlineObjectCreator/widget/ui/InlineObjectCreator.html",
 	"dojo/dom-style",
 	"dojo/dom-class",
 	"dojo/html",
 	"mxui/dom",
 	"dojo/json",
 	"dojo/_base/fx",
-	"dojo/on"
-], function (declare, _WidgetBase, _TemplatedMixin, lang, widgetTemplate, domStyle, domClass, html, dom, json, fx, on) {
+	"dojo/on",
+	"dojo/_base/event"
+], function (declare, _WidgetBase, _TemplatedMixin, lang, widgetTemplate, domStyle, domClass, html, dom, json, fx, on, event) {
 	'use strict';
 
 	return declare('InlineObjectCreator.widget.InlineObjectCreator', [ _WidgetBase, _TemplatedMixin ], {
@@ -44,7 +45,6 @@ define([
 	postCreate : function(){
 		//houskeeping
 		logger.debug(this.id + ".postCreate");
-		dom.addCss('widgets/InlineObjectCreator/widget/ui/InlineObjectCreator.css');
 		
 		if (this.rows == 1) {
 			this.inputNode = this.inputNodeInput;
@@ -147,8 +147,7 @@ define([
 	keypress : function(e) {
 		if (e.keyCode == 13 && (this.rows == 1 || e.ctrlKey == true)) { //multiline needs ctrl key
 			this.trigger();
-			e.preventDefault(); // no bubbling
-			e.stopPropagation(); // no bubbling
+			event.stop(e); // no bubbling
 		}
 	},
 	
@@ -181,14 +180,11 @@ define([
 		//update ownership
 		object.set(this.ownerattribute.split("/")[0], this.dataobject);
 		object.set(this.attribute, value);
-		var me = this;
-		if (object) {
 			mx.data.commit({
 				mxobj: object,
-				callback: lang.hitch(me, me.invokeMF, object),
+				callback: lang.hitch(this, this.invokeMF, object),
 				error: lang.hitch(this, this.feedbackError, "Error while saving object")
 			});
-		}
 	},
 	
 	invokeMF : function(object) {
@@ -229,7 +225,7 @@ define([
 	
 	uninitialize : function(){
 	}
-	});
+		});
 	});
 
-require([ 'InlineObjectCreator/widget/InlineObjectCreator' ]);
+require([ "InlineObjectCreator/widget/InlineObjectCreator" ]);
