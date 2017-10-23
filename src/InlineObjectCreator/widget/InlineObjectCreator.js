@@ -66,8 +66,8 @@ define([
 		}
 		
 		this.connect(this.inputNode, "onkeypress", this.keypress);
-		this.enterhandle = on(this.inputNode, 'onfocus', this, this.onfocus);
-		this.exithandle = on(this.inputNode, 'onblur', this, this.onblur);
+		this.enterhandle = on(this.inputNode, 'focus', this.onfocus);
+		this.exithandle = on(this.inputNode, 'blur', this.onblur);
 
 		this.connect(this.inputNodeTextArea, "oninput", this.setHeight);
 		
@@ -102,16 +102,17 @@ define([
 		if (this.inputNode.value == '') {
 			this.inputNode.value = this.inputcaption;
 			domClass.add(this.inputNode, 'InlineObjectCreaterPreFocus');
-			this.enterhandle = on(this.inputNode, 'onfocus', this, this.onfocus);
+			this.enterhandle = on(this.inputNode, 'focus', this.onfocus.bind(this));
 		}
 	},
 	
 	onfocus : function() {
-		this.enterhandle.remove();
-		this.enterhandle = null;
-		domClass.remove(this.inputNode, 'InlineObjectCreaterPreFocus');
-		if(this.inputNode.value == this.inputcaption) this.inputNode.value = ''; // only clear this field in case it was set with the placeholder caption
-		this.exithandle = on(this.inputNode, 'onblur', this, this.onblur);
+		if (this.enterhandle) {
+			this.enterhandle = null;
+			domClass.remove(this.inputNode, 'InlineObjectCreaterPreFocus');
+			if(this.inputNode.value == this.inputcaption) this.inputNode.value = ''; // only clear this field in case it was set with the placeholder caption
+			this.exithandle = on(this.inputNode, 'blur', this.onblur.bind(this));
+		}
 	},
 	
 	feedbackError : function(msg, error) {
